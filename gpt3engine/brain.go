@@ -23,6 +23,14 @@ type JessMessage struct {
 	Raw     string
 }
 
+func ConvertToString(message Message) string {
+	return fmt.Sprintf("[Friend][%s]: %s\n[END]", message.Time.Format("2006 Jan 2 15:04:05"), message.Text)
+}
+
+func ConvertJessMessageToString(message JessMessage) string {
+	return fmt.Sprintf("[Jess][%s][%s]: %s\n[END]", message.Message.Time.Format("2006 Jan 2 15:04:05"), message.Mood, message.Message.Text)
+}
+
 func MessageToJess(contextWithMessage string) (JessMessage, error) {
 	jessTokenApiSecretKeyName := "projects/438230051748/secrets/gpt3-api-secret-key/versions/latest"
 	secret, err := AccessSecretVersion(jessTokenApiSecretKeyName)
