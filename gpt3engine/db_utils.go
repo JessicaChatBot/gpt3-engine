@@ -2,6 +2,7 @@ package gpt3engine
 
 import (
 	"context"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -34,25 +35,29 @@ func PopulateContextWithAllMessages(dialogId string, dialogContext string) (stri
 		}
 
 		data := doc.Data()
-		dateLayout := "2006 Jan 2 15:04:05"
-		date, err := time.Parse(dateLayout, data["time"].(string))
+		date := data["time"].(time.Time)
 		if err != nil {
 			continue
 		}
-		message := Message{
-			string(data["text"].(string)),
-			date,
-		}
-		if data["author"].(string) == "user" {
-			currentContext = currentContext + "\n" + ConvertToString(message) + "\n"
-		} else {
-			jessMessage := JessMessage{
-				message,
-				data["mood"].([]string),
-				data["raw"].(string),
+		mood := []string{"unknown"}
+		if data["mood"] != nil {
+			mood = make([]string, len(data["mood"].([]interface{})))
+			for i, v := range data["mood"].([]interface{}) {
+				mood[i] = fmt.Sprint(v)
 			}
-			currentContext = currentContext + "\n" + ConvertJessMessageToString(jessMessage) + "\n"
 		}
+		raw := ""
+		if data["raw"] != nil {
+			raw = data["raw"].(string)
+		}
+		message := Message{
+			Text:   string(data["text"].(string)),
+			Time:   date,
+			Author: data["author"].(string),
+			Mood:   mood,
+			Raw:    raw,
+		}
+		currentContext = currentContext + "\n" + message.ConvertToString()
 	}
 	return currentContext, nil
 }
@@ -72,32 +77,8 @@ func SaveMessage(dialogId string, message Message) error {
 	_, err = client.Collection("history").Doc(randId(20)).Set(ctx, map[string]interface{}{
 		"dialogId": dialogId,
 		"text":     message.Text,
-		"author":   "user",
+		"author":   message.Author,
 		"time":     message.Time,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func SaveJessMessage(dialogId string, message JessMessage) error {
-	ctx := context.Background()
-	conf := &firebase.Config{ProjectID: "jessdb-337700"}
-	app, err := firebase.NewApp(ctx, conf)
-	if err != nil {
-		return err
-	}
-
-	client, err := app.Firestore(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = client.Collection("history").Doc(randId(20)).Set(ctx, map[string]interface{}{
-		"dialogId": dialogId,
-		"text":     message.Message.Text,
-		"author":   "Jess",
-		"time":     message.Message.Time,
 		"mood":     message.Mood,
 		"raw":      message.Raw,
 	})

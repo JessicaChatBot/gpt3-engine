@@ -44,13 +44,16 @@ func main() {
 			fmt.Printf("error getting message from Jess: %v\n", err)
 			return
 		}
-		fmt.Println(fmt.Sprintf("Jess: %s\n", answer.Message.Text))
+		fmt.Println(fmt.Sprintf("Jess: %s\n", answer.Text))
 		fmt.Println(fmt.Sprintf("Jess Mood: %s\n", answer.Mood))
 		context = context + fmt.Sprintf("\n%s\n", answer.Raw)
 		gpt3engine.SaveMessage(dialogId, gpt3engine.Message{
-			messageFromUser,
-			time.Now(),
+			Text:   messageFromUser,
+			Time:   time.Now(),
+			Author: "Friend",
+			Mood:   []string{"unknown"},
+			Raw:    messageFromUser,
 		})
-		gpt3engine.SaveJessMessage(dialogId, answer)
+		gpt3engine.SaveMessage(dialogId, answer)
 	}
 }

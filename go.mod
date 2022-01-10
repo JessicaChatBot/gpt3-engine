@@ -11,3 +11,5 @@ require (
 	google.golang.org/api v0.59.0 // indirect
 	google.golang.org/genproto v0.0.0-20211028162531-8db9c33dc351
 )
+
+replace github.com/sashabaranov/go-gpt3 => github.com/b0noi/go-gpt3 v0.0.0-20220110024631-0a3357bc7c78
