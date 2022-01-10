@@ -13,7 +13,8 @@ type Message struct {
 	Raw    string
 }
 
-const TimeFormatLayout = "2006 Jan 2 15:04:05"
+const TimeFormatLayout string = "2006 Jan 2 15:04:05"
+const UnknownMoodMarker string = "unknown"
 
 func (msg Message) ConvertToString() string {
 	return fmt.Sprintf("[%s][%s][%s]: %s\n[END]",

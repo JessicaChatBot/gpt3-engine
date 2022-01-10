@@ -11,19 +11,36 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func PopulateContextWithAllMessages(dialogId string, dialogContext string) (string, error) {
-	ctx := context.Background()
-	conf := &firebase.Config{ProjectID: "jessdb-337700"}
+const googleProjectId = "jessdb-337700"
+
+const tableWithDialogsIds = "dialogs"
+const tableWithDialogsHistory = "history"
+
+const dialogIdColKey = "dialogId"
+const msgTextColKey = "text"
+const moodColKey = "mood"
+const timeColKey = "time"
+const rawMessageColKey = "raw"
+const authorColKey = "author"
+
+func GetDefaultFirestoreClinet(ctx context.Context) (*firestore.Client, error) {
+	conf := &firebase.Config{ProjectID: googleProjectId}
 	app, err := firebase.NewApp(ctx, conf)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-
 	client, err := app.Firestore(ctx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	iter := client.Collection("history").Where("dialogId", "==", dialogId).OrderBy("time", firestore.Desc).Documents(ctx)
+	return client, nil
+}
+
+func PopulateContextWithAllMessages(dialogId string, dialogContext string, client *firestore.Client, ctx context.Context) (string, error) {
+	iter := client.Collection(tableWithDialogsHistory).
+		Where(dialogIdColKey, "==", dialogId).
+		OrderBy(timeColKey, firestore.Desc).
+		Documents(ctx)
 	currentContext := dialogContext
 	for {
 		doc, err := iter.Next()
@@ -35,72 +52,55 @@ func PopulateContextWithAllMessages(dialogId string, dialogContext string) (stri
 		}
 
 		data := doc.Data()
-		date := data["time"].(time.Time)
-		if err != nil {
-			continue
-		}
-		mood := []string{"unknown"}
-		if data["mood"] != nil {
-			mood = make([]string, len(data["mood"].([]interface{})))
-			for i, v := range data["mood"].([]interface{}) {
+		date := data[timeColKey].(time.Time)
+		mood := []string{UnknownMoodMarker}
+		if data[moodColKey] != nil {
+			mood = make(
+				[]string,
+				len(data[moodColKey].([]interface{})))
+			for i, v := range data[moodColKey].([]interface{}) {
 				mood[i] = fmt.Sprint(v)
 			}
 		}
 		raw := ""
-		if data["raw"] != nil {
-			raw = data["raw"].(string)
+		if data[rawMessageColKey] != nil {
+			raw = data[rawMessageColKey].(string)
 		}
 		message := Message{
-			Text:   string(data["text"].(string)),
+			Text:   string(data[msgTextColKey].(string)),
 			Time:   date,
-			Author: data["author"].(string),
+			Author: data[authorColKey].(string),
 			Mood:   mood,
 			Raw:    raw,
 		}
-		currentContext = currentContext + "\n" + message.ConvertToString()
+		currentContext = fmt.Sprintf("%s\n%s",
+			currentContext,
+			message.ConvertToString())
 	}
 	return currentContext, nil
 }
 
-func SaveMessage(dialogId string, message Message) error {
-	ctx := context.Background()
-	conf := &firebase.Config{ProjectID: "jessdb-337700"}
-	app, err := firebase.NewApp(ctx, conf)
-	if err != nil {
-		return err
-	}
-
-	client, err := app.Firestore(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = client.Collection("history").Doc(randId(20)).Set(ctx, map[string]interface{}{
-		"dialogId": dialogId,
-		"text":     message.Text,
-		"author":   message.Author,
-		"time":     message.Time,
-		"mood":     message.Mood,
-		"raw":      message.Raw,
-	})
+func SaveMessage(dialogId string, message Message, client *firestore.Client, ctx context.Context) error {
+	_, err := client.Collection(tableWithDialogsHistory).
+		Doc(randId(20)).
+		Set(ctx, map[string]interface{}{
+			dialogIdColKey:   dialogId,
+			msgTextColKey:    message.Text,
+			authorColKey:     message.Author,
+			timeColKey:       message.Time,
+			moodColKey:       message.Mood,
+			rawMessageColKey: message.Raw,
+		})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func CreateNewDialogIfAbsent(id string) error {
-	ctx := context.Background()
-	conf := &firebase.Config{ProjectID: "jessdb-337700"}
-	app, err := firebase.NewApp(ctx, conf)
-	if err != nil {
-		return err
-	}
-
-	client, err := app.Firestore(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = client.Collection("dialogs").Doc(id).Set(ctx, map[string]interface{}{})
+func CreateNewDialogIfAbsent(id string, client *firestore.Client, ctx context.Context) error {
+	_, err := client.Collection(tableWithDialogsIds).
+		Doc(id).
+		Set(ctx, map[string]interface{}{})
 	if err != nil {
 		return err
 	}
