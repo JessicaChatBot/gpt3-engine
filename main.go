@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"cloud.google.com/go/storage"
 	"github.com/JessicaChatBot/gpt3-engine/gpt3engine"
 )
 
@@ -18,7 +19,13 @@ func main() {
 		fmt.Printf("get db client failed: %v\n", err)
 		return
 	}
-	dialogContext, err := gpt3engine.GetInitialContext()
+
+	storageClient, err := storage.NewClient(ctx)
+	if err != nil {
+		fmt.Printf("get storage client failed: %v\n", err)
+		return
+	}
+	dialogContext, err := gpt3engine.GetInitialContext(storageClient, ctx)
 	dialogId := "vsk-1"
 	dialogContext, err = gpt3engine.PopulateContextWithAllMessages(dialogId, dialogContext, client, ctx)
 	fmt.Println(dialogContext)
@@ -46,7 +53,12 @@ func main() {
 		currentTime := time.Now()
 		messageToAddToContext := fmt.Sprintf("\n[Friend][%s]: %s\n[END]\n", currentTime.Format("2006 Jan 2 15:04:05"), messageFromUser)
 		dialogContext = dialogContext + messageToAddToContext
-		answer, err := gpt3engine.MessageToJess(dialogContext)
+		gpt3Client, err := gpt3engine.GetDefaultGpt3Client()
+		if err != nil {
+			fmt.Printf("error getting gpt3 client: %v\n", err)
+			return
+		}
+		answer, err := gpt3engine.MessageToJess(dialogContext, gpt3Client, ctx)
 		if err != nil {
 			fmt.Printf("error getting message from Jess: %v\n", err)
 			return

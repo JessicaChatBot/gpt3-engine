@@ -1,15 +1,46 @@
 package gpt3engine
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"regexp"
 	"strings"
 	"time"
+
+	gogpt "github.com/sashabaranov/go-gpt3"
 )
 
 const jessStartToken = "[Jess]"
 const endToken = "[END]"
+const jessTokenApiSecretKeyName = "projects/438230051748/secrets/gpt3-api-secret-key/versions/latest"
+const gpt3Engine = "davinci"
+
+func GetDefaultGpt3Client() (*gogpt.Client, error) {
+	secret, err := AccessSecretVersion(jessTokenApiSecretKeyName)
+	if err != nil {
+		return nil, err
+	}
+	return gogpt.NewClient(secret), nil
+}
+
+func MessageToJess(contextWithMessage string, client *gogpt.Client, ctx context.Context) (Message, error) {
+	req := gogpt.CompletionRequest{
+		MaxTokens: 80,
+		Prompt:    contextWithMessage,
+		Stop:      []string{endToken},
+	}
+	resp, err := client.CreateCompletion(ctx, gpt3Engine, req)
+	if err != nil {
+		return Message{}, err
+	}
+	rawResponse := fmt.Sprintf("%s%s", resp.Choices[0].Text, endToken)
+	jessResp, err := parseJessResponse(rawResponse)
+	if err != nil {
+		return Message{}, err
+	}
+	return jessResp, nil
+}
 
 func deriveToken(rawMessage string, tokens []string, currentIndex int) (string, error) {
 	if currentIndex >= len(tokens) {
@@ -40,7 +71,7 @@ func desperateParse(rawMessage string) (string, error) {
 	}
 }
 
-func ParseJessResponse(rawMessage string) (Message, error) {
+func parseJessResponse(rawMessage string) (Message, error) {
 	// Generated with: https://regex101.com/r/QelR3A/1
 	// Tested with:
 	/*

@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go v0.97.0
 	cloud.google.com/go/firestore v1.6.1 // indirect
 	cloud.google.com/go/secretmanager v1.0.0 // indirect
+	cloud.google.com/go/storage v1.10.0 // indirect
 	firebase.google.com/go v3.13.0+incompatible // indirect
 	github.com/sashabaranov/go-gpt3 v0.0.0-20211215192434-7ff9fedf93e5 // indirect
 	google.golang.org/api v0.59.0 // indirect
