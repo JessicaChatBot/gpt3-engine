@@ -14,28 +14,27 @@ import (
 
 func main() {
 	ctx := context.Background()
-	client, err := gpt3engine.GetDefaultFirestoreClinet(ctx)
+	fireStoreClient, err := gpt3engine.GetDefaultFirestoreClinet(ctx)
 	if err != nil {
-		fmt.Printf("get db client failed: %v\n", err)
+		fmt.Printf("get forestore client failed: %v\n", err)
 		return
 	}
-
 	storageClient, err := storage.NewClient(ctx)
 	if err != nil {
 		fmt.Printf("get storage client failed: %v\n", err)
 		return
 	}
 	dialogContext, err := gpt3engine.GetInitialContext(storageClient, ctx)
-	dialogId := "vsk-1"
-	dialogContext, err = gpt3engine.PopulateContextWithAllMessages(dialogId, dialogContext, client, ctx)
-	fmt.Println(dialogContext)
 	if err != nil {
 		fmt.Printf("get context failed: %v\n", err)
 		return
 	}
+	dialogId := "vsk-1"
+	dialogContext, err = gpt3engine.PopulateContextWithAllMessages(dialogId, dialogContext, client, ctx)
+	fmt.Println(dialogContext)
 	messageFromUser := ""
 	reader := bufio.NewReader(os.Stdin)
-	err = gpt3engine.CreateNewDialogIfAbsent(dialogId, client, ctx)
+	err = gpt3engine.CreateNewDialogIfAbsent(dialogId, fireStoreClient, ctx)
 	if err != nil {
 		fmt.Printf("error creating dialog id: %v\n", err)
 		return
@@ -72,7 +71,7 @@ func main() {
 			Author: "Friend",
 			Mood:   []string{"unknown"},
 			Raw:    messageFromUser,
-		}, client, ctx)
-		gpt3engine.SaveMessage(dialogId, answer, client, ctx)
+		}, fireStoreClient, ctx)
+		gpt3engine.SaveMessage(dialogId, answer, fireStoreClient, ctx)
 	}
 }
