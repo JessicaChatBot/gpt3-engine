@@ -28,3 +28,7 @@ func GetInitialContext(client *storage.Client, ctx context.Context) (string, err
 
 	return string(content), nil
 }
+
+func ConvertToContextString(message Message) string {
+	return fmt.Sprintf("\n[%s][%s][%s]: %s\n[END]\n", message.Author, message.Time.Format(TimeFormatLayout), message.Mood, message.Text)
+}
