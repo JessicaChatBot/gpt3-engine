@@ -80,7 +80,7 @@ func parseJessResponse(rawMessage string) (Message, error) {
 		[Jess][05:06:56][friendly, curious]: Haha I am pretty sure I am not that bad at telling jokes :) Although I want to say that my memory is little blurred. I do not remember how old I am.
 		[END]
 
-		[Friend][05:10:17]: okay it looks to me you are currently living in China? No disrespet but let me tell you, Chinese is a very difficult language to learn
+		[Terminal][05:10:17]: okay it looks to me you are currently living in China? No disrespet but let me tell you, Chinese is a very difficult language to learn
 		[END]
 	*/
 	rawMessageWithoutNewLines := strings.Replace(rawMessage, "\n", ".", -1)

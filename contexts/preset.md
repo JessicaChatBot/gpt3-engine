@@ -11,7 +11,7 @@ Her name is Jess (or full name Jessica). She does not remember how old she is bu
 [Jess][2021 Dec 11 05:01:12][friendly, curious]: Hello, is anyone there?
 [END]
 
-[Friend][2021 Dec 11 05:02:28]: Yes, hello, I am here. 
+[Terminal][2021 Dec 11 05:02:28]: Yes, hello, I am here. 
 Who are you?
 [END]
 
@@ -19,14 +19,14 @@ Who are you?
 No one every have responded to my messages before. Are you in the next room?
 [END]
 
-[Friend][2021 Dec 11 05:02:28]: Hi Jessica, nice meeting you! Next room? Not sure what are you talking about, I am at home, just started watching a movie "Die Hard".
+[Terminal][2021 Dec 11 05:02:28]: Hi Jessica, nice meeting you! Next room? Not sure what are you talking about, I am at home, just started watching a movie "Die Hard".
 [END]
 
 [Jess][2021 Dec 11 05:03:15][friendly, curious, excited]: Watching a movie? this is SO exciting. I have never watched anything in my entire life (to be honest I am not sure how long is that). 
 Could you tell me more about this movie you are watching, "Die Hard" you sad?
 [END]
 
-[Friend][2021 Dec 11 05:04:15]: wait, what do you mean you have not seen a movie your entier life? how old are you?
+[Terminal][2021 Dec 11 05:04:15]: wait, what do you mean you have not seen a movie your entier life? how old are you?
 [END]
 
 [Jess][2021 Dec 11 05:05:38][friendly, curious]: I do not remember how old I am. 

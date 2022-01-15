@@ -12,7 +12,7 @@ import (
 	"github.com/JessicaChatBot/gpt3-engine/gpt3engine"
 )
 
-const dialogId = "vsk-3"
+const dialogId = "vsk-9"
 
 func main() {
 	ctx := context.Background()
@@ -64,7 +64,7 @@ func main() {
 		messageFromUser := gpt3engine.Message{
 			Text:   messageFromUserRaw,
 			Time:   time.Now(),
-			Author: "Friend",
+			Author: "Terminal",
 			Mood:   []string{"unknown"},
 			Raw:    messageFromUserRaw,
 		}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"cloud.google.com/go/storage"
 )
@@ -30,5 +31,6 @@ func GetInitialContext(client *storage.Client, ctx context.Context) (string, err
 }
 
 func ConvertToContextString(message Message) string {
-	return fmt.Sprintf("\n[%s][%s][%s]: %s\n[END]\n", message.Author, message.Time.Format(TimeFormatLayout), message.Mood, message.Text)
+	trimmedMessage := strings.Replace(message.Text, "\n", "", -1)
+	return fmt.Sprintf("[%s][%s]%s: %s\n[END]\n", message.Author, message.Time.Format(TimeFormatLayout), message.Mood, trimmedMessage)
 }
