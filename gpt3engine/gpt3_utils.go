@@ -65,10 +65,12 @@ func desperateParse(rawMessage string) (string, error) {
 	message = strings.Split(message, derivedStartToken)[1]
 	for {
 		if !strings.Contains(message, "]") {
-			return message, nil
+			break
 		}
 		message = strings.Split(message, "]")[1]
 	}
+	message = strings.Replace(message, "[", "", -1)
+	return message, nil
 }
 
 func parseJessResponse(rawMessage string) (Message, error) {
