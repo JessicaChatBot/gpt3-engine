@@ -67,9 +67,11 @@ func desperateParse(rawMessage string) (string, error) {
 		if !strings.Contains(message, "]") {
 			break
 		}
-		message = strings.Split(message, "]")[1]
+		message = message[strings.Index(message, "]")+1:]
 	}
-	message = strings.Replace(message, "[", "", -1)
+	message = strings.Replace(message, "[", " ", -1)
+	message = strings.Replace(message, "]", " ", -1)
+	message = strings.Replace(message, ": ", "", -1)
 	return message, nil
 }
 
@@ -111,7 +113,7 @@ func parseJessResponse(rawMessage string) (Message, error) {
 		Text:   messageStringFromJess,
 		Time:   date,
 		Author: "Jess",
-		Mood:   strings.Split(parsingResult[2], "."),
+		Mood:   strings.Split(parsingResult[2], ","),
 		Raw:    parsingResult[0],
 	}, nil
 }
