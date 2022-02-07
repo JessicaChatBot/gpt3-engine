@@ -15,6 +15,7 @@ const googleProjectId = "jessdb-337700"
 
 const tableWithDialogsIds = "dialogs"
 const tableWithDialogsHistory = "history"
+const tableWithMemories = "memory"
 
 const dialogIdColKey = "dialogId"
 const msgTextColKey = "text"
@@ -78,6 +79,32 @@ func PopulateContextWithAllMessages(dialogId string, dialogContext string, clien
 			message.ConvertToString())
 	}
 	return currentContext, nil
+}
+
+func SaveLongTermMemory(memoryToSave string, dialogId string, client *firestore.Client, ctx context.Context) error {
+	_, err := client.Collection(tableWithMemories).
+		Doc(dialogId).
+		Set(ctx, map[string]interface{}{
+			"memoryGeneral": memoryToSave,
+		})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetLongTermMemory(dialogId string, client *firestore.Client, ctx context.Context) (string, error) {
+	doc, err := client.Collection(tableWithMemories).
+		Doc(dialogId).
+		Get(ctx)
+	if err != nil {
+		return "", err
+	}
+	data := doc.Data()
+	if data == nil {
+		return "", nil
+	}
+	return data["memoryGeneral"].(string), nil
 }
 
 func SaveMessage(dialogId string, message Message, client *firestore.Client, ctx context.Context) error {

@@ -24,13 +24,17 @@ func GetDefaultGpt3Client() (*gogpt.Client, error) {
 	return gogpt.NewClient(secret), nil
 }
 
+// Different things to request:
+// * Describe what Jess knows and remembers - long term memory
+// * Describe key facts from Jess dialog with her friend - memory about the friend
+// * Describe her relationship with her friend - memory about the friend
 func DescribeWhatJessShouldSaveFromTheDialog(dialogRaw string, client *gogpt.Client, ctx context.Context) (string, error) {
-	completeRequest := "Important part that Jess learned from the dailogs are:\n"
+	completeRequest := `\n\nDescribe what Jess will remember about this dialog with her friend:`
 	dialogSummaryRequest := fmt.Sprintf("%s\n%s: ", dialogRaw, completeRequest)
 	req := gogpt.CompletionRequest{
-		MaxTokens: 100,
-		Prompt:    dialogSummaryRequest,
-		Stop:      []string{endToken},
+		MaxTokens:   300,
+		Prompt:      dialogSummaryRequest,
+		Temperature: 0.7,
 	}
 	resp, err := client.CreateCompletion(ctx, gpt3Engine, req)
 	if err != nil {
