@@ -8,7 +8,9 @@ require (
 	cloud.google.com/go/secretmanager v1.0.0 // indirect
 	cloud.google.com/go/storage v1.10.0 // indirect
 	firebase.google.com/go v3.13.0+incompatible // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/sashabaranov/go-gpt3 v0.0.0-20211215192434-7ff9fedf93e5 // indirect
+	github.com/urfave/cli/v2 v2.3.0 // indirect
 	google.golang.org/api v0.59.0 // indirect
 	google.golang.org/genproto v0.0.0-20211028162531-8db9c33dc351
 )

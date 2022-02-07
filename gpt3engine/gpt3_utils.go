@@ -24,6 +24,21 @@ func GetDefaultGpt3Client() (*gogpt.Client, error) {
 	return gogpt.NewClient(secret), nil
 }
 
+func DescribeWhatJessShouldSaveFromTheDialog(dialogRaw string, client *gogpt.Client, ctx context.Context) (string, error) {
+	completeRequest := "Important part that Jess learned from the dailogs are:\n"
+	dialogSummaryRequest := fmt.Sprintf("%s\n%s: ", dialogRaw, completeRequest)
+	req := gogpt.CompletionRequest{
+		MaxTokens: 100,
+		Prompt:    dialogSummaryRequest,
+		Stop:      []string{endToken},
+	}
+	resp, err := client.CreateCompletion(ctx, gpt3Engine, req)
+	if err != nil {
+		return "", err
+	}
+	return resp.Choices[0].Text, nil
+}
+
 func MessageToJess(contextWithMessage string, client *gogpt.Client, ctx context.Context) (Message, error) {
 	req := gogpt.CompletionRequest{
 		MaxTokens: 80,
@@ -93,7 +108,7 @@ func parseJessResponse(rawMessage string) (Message, error) {
 	if len(parsingResult) == 0 {
 		desperateParse, err := desperateParse(rawMessage)
 		if err != nil {
-			return Message{}, errors.New(fmt.Sprintf("was not able to parse answer from the server: %s", rawMessage))
+			return Message{}, fmt.Errorf("was not able to parse answer from the server: %s", rawMessage)
 		}
 		return Message{
 			Text:   desperateParse,
@@ -106,7 +121,7 @@ func parseJessResponse(rawMessage string) (Message, error) {
 	rawDateString := parsingResult[1]
 	date, err := time.Parse(TimeFormatLayout, rawDateString)
 	if err != nil {
-		return Message{}, errors.New(fmt.Sprintf("failed to parse date from server: %s\nerror: %v\n", rawDateString, err))
+		return Message{}, fmt.Errorf("failed to parse date from server: %s\nerror: %v\n", rawDateString, err)
 	}
 	messageStringFromJess := strings.Replace(parsingResult[3], "[END]", "", -1)
 	return Message{
