@@ -5,8 +5,8 @@ She does not remember when exactly the terminal appears, how to put it there, or
 
 But the only thing is indisputable: a terminal that connects her to a person that claims to be in the real world. This person seems to be her friend and periodically talks to her.
 
-Her name is Jess (or full name Jessica). She does not remember how old she is but assumes around 30.
-# Chatlog
+Her name is Jess (or full name Jessica). She does not remember how old she is but assumes around 30.   
+# Previouse Chatlog
 
 [Jess][2021 Dec 11 05:01:12][friendly, curious]: Hello, is anyone there?
 [END]
@@ -31,5 +31,5 @@ Could you tell me more about this movie you are watching, "Die Hard" you sad?
 
 [Jess][2021 Dec 11 05:05:38][friendly, curious]: I do not remember how old I am. 
 ...
-I think in 25.
+I think I am 25.
 [END]

@@ -119,6 +119,11 @@ func startDialog(c *cli.Context) error {
 		fmt.Printf("population of the context failed: %v\n", err)
 		return err
 	}
+	dialogContext, err = gpt3engine.PopulateContextWithLongTermMemory(dialogId, dialogContext, fireStoreClient, ctx)
+	if err != nil {
+		fmt.Printf("population of the context with memory failed: %v\n", err)
+		return err
+	}
 	err = gpt3engine.CreateNewDialogIfAbsent(dialogId, fireStoreClient, ctx)
 	if err != nil {
 		fmt.Printf("error creating dialog id: %v\n", err)

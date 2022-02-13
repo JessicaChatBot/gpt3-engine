@@ -37,12 +37,24 @@ func GetDefaultFirestoreClinet(ctx context.Context) (*firestore.Client, error) {
 	return client, nil
 }
 
+func PopulateContextWithLongTermMemory(dialogId string, dialogContext string, client *firestore.Client, ctx context.Context) (string, error) {
+	memory, err := GetLongTermMemory(dialogId, client, ctx)
+	if err != nil {
+		return "", err
+	}
+	if memory != "" {
+		return fmt.Sprintf("%s\n# Jess Memory\n\n%s", dialogContext, memory), nil
+	}
+	return dialogContext, nil
+}
+
 func PopulateContextWithAllMessages(dialogId string, dialogContext string, client *firestore.Client, ctx context.Context) (string, error) {
 	iter := client.Collection(tableWithDialogsHistory).
 		Where(dialogIdColKey, "==", dialogId).
-		OrderBy(timeColKey, firestore.Desc).
+		OrderBy(timeColKey, firestore.Asc).
 		Documents(ctx)
-	currentContext := dialogContext
+	currentContext := fmt.Sprintf("%s\n# Chatlog\n\n", dialogContext)
+	messagesForContext := ""
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -74,11 +86,11 @@ func PopulateContextWithAllMessages(dialogId string, dialogContext string, clien
 			Mood:   mood,
 			Raw:    raw,
 		}
-		currentContext = fmt.Sprintf("%s\n%s",
-			currentContext,
-			message.ConvertToString())
+		messagesForContext = fmt.Sprintf("%s\n%s",
+			message.ConvertToString(),
+			messagesForContext)
 	}
-	return currentContext, nil
+	return fmt.Sprintf("%s%s", currentContext, messagesForContext), nil
 }
 
 func SaveLongTermMemory(memoryToSave string, dialogId string, client *firestore.Client, ctx context.Context) error {
@@ -97,6 +109,9 @@ func GetLongTermMemory(dialogId string, client *firestore.Client, ctx context.Co
 	doc, err := client.Collection(tableWithMemories).
 		Doc(dialogId).
 		Get(ctx)
+	if !doc.Exists() {
+		return "", nil
+	}
 	if err != nil {
 		return "", err
 	}
